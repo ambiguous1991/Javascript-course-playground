@@ -20,8 +20,29 @@ var budgetController = (function (){
             exp: 0,
             inc: 0
         }
-    }
+    };
 
+    return {
+        addItem: function(type, desc, val) {
+            var newItem, ID;
+
+            if(data.allItems[type].length===0){
+                ID=0;
+            }
+            else {
+                ID = data.allItems[type][data.allItems[type].length - 1].id + 1;
+            }
+
+            if(type==='exp') {
+                newItem = new Expanse(ID, desc, val);
+            }
+            else if (type==='inc'){
+                newItem = new Income(ID, desc, val);
+            }
+            data.allItems[type].push(newItem);
+            return newItem;
+        }
+    };
 })();
 
 var UIController = (function () {
@@ -29,7 +50,9 @@ var UIController = (function () {
         inputType: '.add__type',
         description: '.add__description',
         value: '.add__value',
-        inputButton: '.add__btn'
+        inputButton: '.add__btn',
+        incomeContainer: '.income__list',
+        expansesContainer: '.expenses__list'
     };
 
     var getInputData = function () {
@@ -46,6 +69,26 @@ var UIController = (function () {
 
     return {
         getInputData,
+
+        addListItem: function(obj, type){
+            var html, newHtml, insertionPoint;
+            if(type==='inc') {
+                html = '<div class="item clearfix" id="income-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">+  %value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+                insertionPoint = document.querySelector(DOMStrings.incomeContainer);
+            }
+            else if (type==='exp') {
+                html = '<div class="item clearfix" id="expense-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">-  %value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+                insertionPoint = document.querySelector(DOMStrings.expansesContainer);
+            }
+
+            newHtml = html
+                .replace('%id%', obj.id)
+                .replace('%description%', obj.description)
+                .replace('%value%', obj.value);
+
+            insertionPoint.insertAdjacentHTML('beforeend', newHtml);
+        },
+
         getDOMStrings: function () {
             return DOMStrings;
         }
@@ -69,9 +112,9 @@ var controller = (function (budgetCtrl, UICtrl) {
         //get input data
         var input = UICtrl.getInputData();
         //add item to budget controller
-
+        var newItem = budgetCtrl.addItem(input.type,  input.description, input.value);
         //add item to UI
-
+        UICtrl.addListItem(newItem, input.type);
         //calculate budget
 
         //display budget
