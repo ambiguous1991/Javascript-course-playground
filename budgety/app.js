@@ -147,24 +147,39 @@ var UIController = (function () {
         }
     };
 
+    var formatNumber = function(number, type){
+        var numSplit, int, dec, sign;
+        number = Math.abs(number);
+        number = number.toFixed(2);
+        numSplit = number.split('.');
+
+        int = numSplit[0];
+        dec = numSplit[1];
+
+        if(int.length>3){
+            int = int.substr(0, int.length-3)+ '.' +int.substr(int.length-3, 3);
+        }
+        return (type === 'exp' ? '-' : '+') + ' ' + int + '.' + dec;
+    };
+
     return {
         getInputData,
 
         addListItem: function(obj, type){
             var html, newHtml, insertionPoint;
             if(type==='inc') {
-                html = '<div class="item clearfix" id="inc-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">+  %value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+                html = '<div class="item clearfix" id="inc-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
                 insertionPoint = document.querySelector(DOMStrings.incomeContainer);
             }
             else if (type==='exp') {
-                html = '<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">-  %value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+                html = '<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
                 insertionPoint = document.querySelector(DOMStrings.expansesContainer);
             }
 
             newHtml = html
                 .replace('%id%', obj.id)
                 .replace('%description%', obj.description)
-                .replace('%value%', obj.value);
+                .replace('%value%', formatNumber(obj.value, type));
 
             insertionPoint.insertAdjacentHTML('beforeend', newHtml);
         },
@@ -185,9 +200,12 @@ var UIController = (function () {
         },
 
         displayBudget: function(obj){
-            document.querySelector(DOMStrings.totalIncomeLabel).textContent = obj.totalInc;
-            document.querySelector(DOMStrings.totalExpanseLabel).textContent = obj.totalExp;
-            document.querySelector(DOMStrings.budgetLabel).textContent = obj.budget;
+            var type;
+            obj.budget > 0 ? type = 'inc' : type = 'exp';
+
+            document.querySelector(DOMStrings.totalIncomeLabel).textContent = formatNumber(obj.totalInc, 'inc');
+            document.querySelector(DOMStrings.totalExpanseLabel).textContent = formatNumber(obj.totalExp, 'exp');
+            document.querySelector(DOMStrings.budgetLabel).textContent = formatNumber(obj.budget, type);
 
             if(obj.percentage>=0) {
                 document.querySelector(DOMStrings.percentageLabel).textContent = obj.percentage + '%';
@@ -286,9 +304,9 @@ var controller = (function (budgetCtrl, UICtrl) {
             console.log('Application started');
             UICtrl.displayBudget({
                 budget: 0,
-                percentage: 0,
+                percentage: -1,
                 totalInc: 0,
-                totalExp: -1
+                totalExp: 0
             });
             setupEventListeners();
         }
