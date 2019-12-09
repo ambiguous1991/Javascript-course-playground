@@ -13,7 +13,6 @@ const state = {};
 const controlSearch = async () => {
     //get query from view
     const query = searchView.getInput();
-    console.log(query);
 
     if(query) {
         //new search object and add to state
@@ -33,9 +32,17 @@ const controlSearch = async () => {
     }
 };
 
-
 elements.searchForm.addEventListener(
     'submit', e=> {
         e.preventDefault();
         controlSearch();
+});
+
+elements.searchResPages.addEventListener('click', e=> {
+    const btn = e.target.closest('.btn-inline');
+    if(btn) {
+        const goToPage = btn.dataset.goto;
+        searchView.clearResults();
+        searchView.renderResults(state.search.result, parseInt(goToPage));
+    }
 });
