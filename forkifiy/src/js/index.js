@@ -1,7 +1,9 @@
 import Search from "./models/Search";
 import Recipe from "./models/Recipe";
 import * as searchView from './views/searchView';
+import * as recipeView from './views/recipeView';
 import { elements, renderLoader, clearLoader } from './views/base';
+import {renderRecipe} from "./views/recipeView";
 
 /** Global state of the app
 * - Search object'
@@ -58,6 +60,9 @@ elements.searchResPages.addEventListener('click', e=> {
 const controlRecipe = async () => {
     const id = window.location.hash.replace('#','');
     if(id){
+        recipeView.clearRecipe();
+        renderLoader(elements.recipe);
+
         state.recipe = new Recipe(id);
 
         try {
@@ -67,7 +72,8 @@ const controlRecipe = async () => {
             state.recipe.calcServings();
             state.recipe.calcTime();
 
-            console.log(state.recipe);
+            clearLoader();
+            recipeView.renderRecipe(state.recipe);
         }
         catch (exception) {
             alert('Error fetching recipe!');
