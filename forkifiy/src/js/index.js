@@ -15,8 +15,6 @@ import { elements, renderLoader, clearLoader } from './views/base';
 * - Liked recipes
 * */
 const state = {};
-state.likes = new Likes();
-likesView.toogleLikeMenu(0);
 
 const controlSearch = async () => {
     //get query from view
@@ -142,6 +140,13 @@ const controlLike = () => {
     }
     likesView.toogleLikeMenu(state.likes.getNumLikes());
 };
+
+window.addEventListener('load', () => {
+    state.likes = new Likes();
+    state.likes.readStorage();
+    likesView.toogleLikeMenu(state.likes.getNumLikes());
+    state.likes.likes.forEach(like => likesView.renderLike(like));
+});
 
 elements.recipe.addEventListener('click', e => {
     if(e.target.matches('.btn-decrease, .btn-decrease *')){
