@@ -5,6 +5,7 @@ import Likes from "./models/Likes";
 import * as searchView from './views/searchView';
 import * as recipeView from './views/recipeView';
 import * as listView from './views/listView';
+import * as likesView from './views/likesView';
 import { elements, renderLoader, clearLoader } from './views/base';
 
 /** Global state of the app
@@ -14,6 +15,8 @@ import { elements, renderLoader, clearLoader } from './views/base';
 * - Liked recipes
 * */
 const state = {};
+state.likes = new Likes();
+likesView.toogleLikeMenu(0);
 
 const controlSearch = async () => {
     //get query from view
@@ -79,7 +82,7 @@ const controlRecipe = async () => {
             state.recipe.calcTime();
 
             clearLoader();
-            recipeView.renderRecipe(state.recipe);
+            recipeView.renderRecipe(state.recipe, state.likes.isLiked(id));
         }
         catch (exception) {
             alert('Error fetching recipe!');
@@ -126,12 +129,18 @@ const controlLike = () => {
             state.recipe.img
         );
 
-        console.log(state.likes);
+        likesView.toggleLikeButton(true);
+
+        likesView.renderLike(newLike);
     }
     else {
         state.likes.deleteLike(currentId);
-        console.log(state.likes);
+
+        likesView.toggleLikeButton(false);
+
+        likesView.deleteLike(currentId);
     }
+    likesView.toogleLikeMenu(state.likes.getNumLikes());
 };
 
 elements.recipe.addEventListener('click', e => {
