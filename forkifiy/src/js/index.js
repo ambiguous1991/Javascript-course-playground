@@ -1,6 +1,7 @@
 import Search from "./models/Search";
 import Recipe from "./models/Recipe";
 import List from './models/List';
+import Likes from "./models/Likes";
 import * as searchView from './views/searchView';
 import * as recipeView from './views/recipeView';
 import * as listView from './views/listView';
@@ -13,7 +14,6 @@ import { elements, renderLoader, clearLoader } from './views/base';
 * - Liked recipes
 * */
 const state = {};
-window.s = state;
 
 const controlSearch = async () => {
     //get query from view
@@ -113,6 +113,27 @@ elements.shopping.addEventListener('click', e => {
     }
 });
 
+const controlLike = () => {
+    if(!state.likes){
+        state.likes = new Likes();
+    }
+    const currentId = state.recipe.id;
+    if(!state.likes.isLiked(currentId)){
+        const newLike = state.likes.addLike(
+            currentId,
+            state.recipe.title,
+            state.recipe.author,
+            state.recipe.img
+        );
+
+        console.log(state.likes);
+    }
+    else {
+        state.likes.deleteLike(currentId);
+        console.log(state.likes);
+    }
+};
+
 elements.recipe.addEventListener('click', e => {
     if(e.target.matches('.btn-decrease, .btn-decrease *')){
         if(state.recipe.servings>1) {
@@ -127,6 +148,8 @@ elements.recipe.addEventListener('click', e => {
     else if (e.target.matches('.recipe__btn--add, .recipe__btn--add *')) {
         controlList();
     }
+    else if (e.target.matches('.recipe__love, .recipe__love *')){
+        controlLike();
+    }
 });
 
-window.l = new List();
